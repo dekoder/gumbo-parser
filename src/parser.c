@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <stdio.h>
 
 #include "attribute.h"
 #include "error.h"
@@ -4067,15 +4068,16 @@ static void fragment_parser_init(GumboParser* parser, GumboTag fragment_ctx,
   reset_insertion_mode_appropriately(parser);
 }
 
-GumboOutput* gumbo_parse(const char* buffer) {
+GumboOutput* gumbo_parse(const char* buffer, int flags[]) {
   return gumbo_parse_with_options(
-      &kGumboDefaultOptions, buffer, strlen(buffer));
+      &kGumboDefaultOptions, buffer, strlen(buffer), flags);
 }
 
 GumboOutput* gumbo_parse_with_options(
-    const GumboOptions* options, const char* buffer, size_t length) {
+    const GumboOptions* options, const char* buffer, size_t length, int flags[]) {
   GumboParser parser;
   parser._options = options;
+  parser._flags = flags;
   output_init(&parser);
   gumbo_tokenizer_state_init(&parser, buffer, length);
   parser_state_init(&parser);
@@ -4122,6 +4124,10 @@ GumboOutput* gumbo_parse_with_options(
       default:
         break;
     }
+
+    //printf("Handling %s token @%d in state %d.\n", (char*) token_type,
+    //    token.position.offset, state->_insertion_mode);
+
     gumbo_debug("Handling %s token @%d:%d in state %d.\n", (char*) token_type,
         token.position.line, token.position.column, state->_insertion_mode);
 

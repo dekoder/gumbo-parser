@@ -652,14 +652,14 @@ typedef struct GumboInternalOutput {
  *
  * This doesn't support buffers longer than 4 gigabytes.
  */
-GumboOutput* gumbo_parse(const char* buffer);
+GumboOutput* gumbo_parse(const char* buffer, int flags[]);
 
 /**
  * Extended version of gumbo_parse that takes an explicit options structure,
  * buffer, and length.
  */
 GumboOutput* gumbo_parse_with_options(
-    const GumboOptions* options, const char* buffer, size_t buffer_length);
+    const GumboOptions* options, const char* buffer, size_t buffer_length, int flags[]);
 
 /** Release the memory used for the parse tree & parse errors. */
 void gumbo_destroy_output(const GumboOptions* options, GumboOutput* output);

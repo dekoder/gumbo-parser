@@ -260,6 +260,7 @@ static std::string serialize(GumboNode* node) {
 
 
 int main(int argc, char** argv) {
+  int flags[100];
   if (argc != 2) {
       std::cout << "serialize <html filename>\n";
       exit(EXIT_FAILURE);
@@ -281,7 +282,7 @@ int main(int argc, char** argv) {
  
   GumboOptions options = kGumboDefaultOptions;
 
-  GumboOutput* output = gumbo_parse_with_options(&options, contents.data(), contents.length());
+  GumboOutput* output = gumbo_parse_with_options(&options, contents.data(), contents.length(), flags);
   std::cout << serialize(output->document) << std::endl;
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 }

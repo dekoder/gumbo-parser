@@ -83,9 +83,10 @@ int main(int argc, const char** argv) {
 
   char* input;
   int input_length;
+  int flags[100];
   read_file(fp, &input, &input_length);
   GumboOutput* output = gumbo_parse_with_options(
-      &kGumboDefaultOptions, input, input_length);
+      &kGumboDefaultOptions, input, input_length, flags);
   const char* title = find_title(output->root);
   printf("%s\n", title);
   gumbo_destroy_output(&kGumboDefaultOptions, output);

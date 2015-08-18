@@ -68,6 +68,7 @@ int main(int argc, char** argv) {
   }
   const char* filename = argv[1];
   const char* cls = argv[2];
+  int flags[100];
 
   std::ifstream in(filename, std::ios::in | std::ios::binary);
   if (!in) {
@@ -86,7 +87,7 @@ int main(int argc, char** argv) {
   // positions, because c_str() creates a copy of the string and you can't do
   // pointer arithmetic betweent contents.data() and the original_* pointers.
   GumboOutput* output = gumbo_parse_with_options(
-      &kGumboDefaultOptions, contents.data(), contents.length());
+      &kGumboDefaultOptions, contents.data(), contents.length(), flags);
   search_for_class(output->root, contents, cls);
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 }

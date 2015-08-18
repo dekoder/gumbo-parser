@@ -35,6 +35,8 @@ struct GumboInternalTokenizerState;
 typedef struct GumboInternalParser {
   // Settings for this parse run.
   const struct GumboInternalOptions* _options;
+  
+  int* _flags;
 
   // Output for the parse.
   struct GumboInternalOutput* _output;

@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
   const char* filename = argv[1];
+  int flags[100];
 
   std::ifstream in(filename, std::ios::in | std::ios::binary);
   if (!in) {
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
   in.read(&contents[0], contents.size());
   in.close();
 
-  GumboOutput* output = gumbo_parse(contents.c_str());
+  GumboOutput* output = gumbo_parse(contents.c_str(), flags);
   search_for_links(output->root);
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 }

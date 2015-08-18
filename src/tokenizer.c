@@ -750,6 +750,11 @@ static void finish_tag_name(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
 
+  if (!strcmp(tag_state->_buffer.data, "script")) {
+    tag_state->_buffer.data[0] = '_';
+    parser->_flags[tokenizer->_token_start_pos.offset+1] = 1;
+  }
+
   tag_state->_tag =
       gumbo_tagn_enum(tag_state->_buffer.data, tag_state->_buffer.length);
   reinitialize_tag_buffer(parser);

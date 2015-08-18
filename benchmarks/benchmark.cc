@@ -28,6 +28,8 @@
 static const int kNumReps = 10;
 
 int main(int argc, char** argv) {
+  int flags[100];
+    
   if (argc != 1) {
     std::cout << "Usage: benchmarks\n";
     exit(EXIT_FAILURE);
@@ -61,7 +63,7 @@ int main(int argc, char** argv) {
 
       clock_t start_time = clock();
       for (int i = 0; i < kNumReps; ++i) {
-        GumboOutput* output = gumbo_parse(contents.c_str());
+        GumboOutput* output = gumbo_parse(contents.c_str(), flags);
         gumbo_destroy_output(&kGumboDefaultOptions, output);
       }
       clock_t end_time = clock();

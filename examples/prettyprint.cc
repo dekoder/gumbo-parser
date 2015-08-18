@@ -327,6 +327,7 @@ static std::string prettyprint(GumboNode* node, int lvl, const std::string inden
 
 
 int main(int argc, char** argv) {
+  int flags[100];
   if (argc != 2) {
       std::cout << "prettyprint <html filename>\n";
       exit(EXIT_FAILURE);
@@ -348,7 +349,7 @@ int main(int argc, char** argv) {
  
   GumboOptions options = kGumboDefaultOptions;
 
-  GumboOutput* output = gumbo_parse_with_options(&options, contents.data(), contents.length());
+  GumboOutput* output = gumbo_parse_with_options(&options, contents.data(), contents.length(), flags);
   std::string indent_chars = "  ";
   std::cout << prettyprint(output->document, 0, indent_chars) << std::endl;
   gumbo_destroy_output(&kGumboDefaultOptions, output);
