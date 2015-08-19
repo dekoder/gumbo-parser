@@ -750,8 +750,8 @@ static void finish_tag_name(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
 
-  if (!strcmp(tag_state->_buffer.data, "script")) {
-    tag_state->_buffer.data[0] = '_';
+  if (!strcmp(tag_state->_buffer.data, "svg") || !strcmp(tag_state->_buffer.data, "script")) {
+    tag_state->_buffer.data[0] = 'x';
     parser->_flags[tokenizer->_token_start_pos.offset+1] = 1;
   }
 
@@ -775,6 +775,14 @@ static void add_duplicate_attr_error(GumboParser* parser, const char* attr_name,
   error->v.duplicate_attr.new_index = new_index;
   copy_over_tag_buffer(parser, &error->v.duplicate_attr.name);
   reinitialize_tag_buffer(parser);
+}
+
+void replace_attr_for(GumboParser* parser, GumboTagState* tag_state, GumboTag tag, char *target) {
+  if (tag_state->_tag == tag &&
+      strcmp(target, tag_state->_buffer.data) == 0) {
+    tag_state->_buffer.data[0] = 'x';
+    parser->_flags[tag_state->_start_pos.offset] = 1;
+  } 
 }
 
 // Creates a new attribute in the current tag, copying the current tag buffer to
@@ -804,6 +812,35 @@ static bool finish_attribute_name(GumboParser* parser) {
     }
   }
 
+
+  if (tag_state->_buffer.length > 2 && memcmp(tag_state->_buffer.data, "on", 2) == 0) {
+    tag_state->_buffer.data[0] = 'x';
+    parser->_flags[tag_state->_start_pos.offset] = 1;
+  }
+
+  replace_attr_for(parser, tag_state, GUMBO_TAG_OBJECT, "data");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_OBJECT, "type");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_OBJECT, "classid");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_PARAM, "data");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_PARAM, "movie");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_PARAM, "src");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_EMBED, "code");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_EMBED, "src");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_EMBED, "type");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_APPLET, "code");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_APPLET, "object");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_META, "http-equiv");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_BASE, "href");
+  //replace_attr_for(parser, tag_state, GUMBO_TAG_FORM, "action");
+  //replace_attr_for(parser, tag_state, GUMBO_TAG_INPUT, "formaction");
+  //replace_attr_for(parser, tag_state, GUMBO_TAG_BUTTON, "formaction");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_FRAME, "srcdoc");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_FRAME, "src");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_IFRAME, "srcdoc");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_IFRAME, "src");
+  replace_attr_for(parser, tag_state, GUMBO_TAG_LINK, "rel");
+
+
   GumboAttribute* attr = gumbo_parser_allocate(parser, sizeof(GumboAttribute));
   attr->attr_namespace = GUMBO_ATTR_NAMESPACE_NONE;
   copy_over_tag_buffer(parser, &attr->name);
@@ -821,6 +858,7 @@ static bool finish_attribute_name(GumboParser* parser) {
 // attribute to the current contents of the tag buffer.
 static void finish_attribute_value(GumboParser* parser) {
   GumboTagState* tag_state = &parser->_tokenizer_state->_tag_state;
+  const char* cur_value_start;
   if (tag_state->_drop_next_attr_value) {
     // Duplicate attribute name detected in an earlier state, so we have to
     // ignore the value.
@@ -833,6 +871,13 @@ static void finish_attribute_value(GumboParser* parser) {
       tag_state->_attributes.data[tag_state->_attributes.length - 1];
   gumbo_parser_deallocate(parser, (void*) attr->value);
   copy_over_tag_buffer(parser, &attr->value);
+
+  cur_value_start = attr->value;
+  while (*cur_value_start <= ' ')
+    cur_value_start++;
+  if (strncasecmp("javascript:", cur_value_start, 11) == 0 || strncasecmp("data:", cur_value_start, 5) == 0 )
+    parser->_flags[tag_state->_start_pos.offset+1] = 1;
+
   copy_over_original_tag_text(
       parser, &attr->original_value, &attr->value_start, &attr->value_end);
   reinitialize_tag_buffer(parser);
